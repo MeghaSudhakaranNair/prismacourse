@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Course {
+  id           Int         @id @default(autoincrement())
+  title        String
+  desc         String
+  duration     Float
+  createdAt    DateTime    @default(now())
+  videos       Video[]
+  Instructor   Instructor? @relation(fields: [instructorId], references: [id])
+  instructorId Int?
+  user User[] @relation("userCourse")
+}
+
+model Video {
+  id            Int          @id @default(autoincrement())
+  title         String
+  desc          String
+  url           String
+  Course        Course?      @relation(fields: [courseId], references: [id])
+  courseId      Int?
+  videoDetails  VideoDetail? 
+  videoDetailId Int?
+}
+
+model Instructor {
+  id     Int      @id @default(autoincrement())
+  email  String   @unique
+  name   String
+  course Course[]
+}
+
+model VideoDetail {
+  id       Int     @id @default(autoincrement())
+  key      String?
+  metadata String?
+  url      String
+  videoId  Int?    @unique
+
+  video Video? @relation(fields: [videoId], references: [id])
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  firstName String?
+  lastName String?
+  email String? @unique
+  password String
+  course Course[] @relation("userCourse")
+  
+}
+
+model Customer{
+  id       Int    @id @default(autoincrement())   
+  name    String?  
+  email    String? @unique
+  address  Address? @relation(fields:[addressId], references:[id])
+  addressId Int? @unique
+  application Application[] 
+ 
+}
+
+
+
+model Address{
+  id       Int    @id @default(autoincrement())
+  zip      String?
+  country  String?
+  city     String?
+  customer Customer?
+}
+
+enum APPLICATION_TYPE{
+  LOAN
+  CAR_FINANCING
+  BUSINESS_FINANCING
+}
+model Application{
+  id       Int    @id @default(autoincrement()) 
+  type     APPLICATION_TYPE
+  tenure   String
+  amount   Float
+  customer Customer? @relation(fields:[customerId], references:[id])
+  customerId Int?
+}
+model Account{
+  id       Int    @id @default(autoincrement()) 
+  balance Float
+  title String
+}
+
